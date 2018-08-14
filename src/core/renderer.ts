@@ -301,6 +301,8 @@ export class TableRenderer {
         this.colorState.row = null;
       }
 
+      rowStyle += ' class="table-row-image pointer" row=' + y + ' '; // sooskim
+
       html += '<tr ' + rowStyle + '>' + cellHtml + '</tr>';
     }
 

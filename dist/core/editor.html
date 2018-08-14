@@ -53,3 +53,36 @@
     </div>
   </div>
 </div>
+
+<div class="editor-row">
+  <div class="gf-form-group">
+    <h5 class="heading">Image</h5>
+    <div class="gf-form">
+      <label class="gf-form-label width-8">Image Server</label>
+      <input type="text" class="gf-form-input width-30" placeholder="" data-placement="right" ng-model="editor.panel.host" ng-change="editor.render()" ng-model-onblur>
+    </div>
+    <div class="gf-form">
+      <label class="gf-form-label width-8">Image Host API</label>
+      <div class="gf-form">
+        <input type="text" class="gf-form-input width-30" placeholder="" data-placement="right" ng-model="editor.panel.api" ng-change="editor.render()"></select>
+      </div>
+    </div>
+
+    <div class="gf-form">
+      <label class="gf-form-label width-8">Splash</label>
+      <div class="gf-form">
+        <input type="text" class="gf-form-input width-30" placeholder="" data-placement="right" ng-model="editor.panel.splash" ng-change="editor.render()"></select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="editor-row">
+    <div class="gf-form-group">
+      <h5 class="heading">Player</h5>
+      <div class="gf-form">
+        <label class="gf-form-label width-14">Delay bwtween each event.</label>
+        <input type="number" class="gf-form-input width-8" placeholder="seconds" data-placement="right" ng-model="editor.panel.delay" ng-change="editor.render()" ng-model-onblur>
+      </div>
+      <gf-form-switch class="gf-form" label="Repeat Forever" label-class="width-14" switch-class="width-8" checked="ctrl.panel.repeat" change="editor.render()"></gf-form-switch>
+  </div>

@@ -1,0 +1,35 @@
+.image-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 12px;
+}
+
+.image-discription-container {
+    display: flex;
+    justify-content: left;
+    margin-left: 12px;
+    margin-top: 12px;
+    background-color: dimgray;
+}
+
+.splash {
+    position: absolute;
+    z-index: 2000;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.splash-title{
+    font-size: 26px
+}
+
+.color-line {
+    border-radius:4px 4px 0 0
+}
+
+.bg-fit {
+    object-fit: contain;
+}

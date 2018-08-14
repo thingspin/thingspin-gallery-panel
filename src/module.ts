@@ -1,17 +1,28 @@
 import _ from 'lodash';
 import $ from 'jquery';
-import { MetricsPanelCtrl } from 'grafana/app/plugins/sdk';
+import { loadPluginCss, MetricsPanelCtrl } from 'grafana/app/plugins/sdk';
 import { transformDataToTable } from './core/transformers';
-import { tablePanelEditor } from './core/editor';
+import { galleryPanelEditor } from './core/editor';
 import { columnOptionsTab } from './core/column_options';
 import { TableRenderer } from './core/renderer';
 
 class GalleryPanelCtrl extends MetricsPanelCtrl {
   static templateUrl = 'module.html';
 
+  scope: any;
   pageIndex: number;
   dataRaw: any;
   table: any;
+
+  current: any;
+  rowIndex: any;
+  inProcessing: boolean;
+  playerTimer: any;
+
+  pluginBase: any;
+  image: any;
+  splash: any;
+
   renderer: any;
 
   panelDefaults = {
@@ -39,15 +50,28 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     ],
     columns: [],
     scroll: true,
-    fontSize: '100%',
+    fontSize: '80%',
     sort: { col: 0, desc: true },
+
+    //host: '', //'http://219.251.4.236/',
+    host: 'http://219.251.4.236/',
+    api: 'public/assets/gallary/pics/',
+    splash: 'splash.svg',
+    image: 'photo.png',
+    imageCol: 'IMAGE',
+
+    repeat: false,
+    delay: 0.3,
   };
 
   /** @ngInject */
   constructor($scope, $injector, templateSrv, private annotationsSrv, private $sanitize, private variableSrv) {
     super($scope, $injector);
+    this.scope = $scope;
 
     this.pageIndex = 0;
+    this.rowIndex = -1;
+    this.inProcessing = true;
 
     if (this.panel.styles === void 0) {
       this.panel.styles = this.panel.columns;
@@ -58,20 +82,153 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
 
     _.defaults(this.panel, this.panelDefaults);
 
+    this.pluginBase = `plugins/${this.pluginId}`;
+    this.image = `public/${this.pluginBase}/img/${this.panel.image}`;
+    this.splash = `public/${this.pluginBase}/img/${this.panel.splash}`;
+    loadPluginCss({
+      dark: `${this.pluginBase}/css/dark.css`,
+      light: `${this.pluginBase}/css/light.css`
+    });
+
     this.events.on('data-received', this.onDataReceived.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));
     this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('init-panel-actions', this.onInitPanelActions.bind(this));
+
+    this.events.on('image-patch', this.onImagePatch.bind(this));
+    this.events.on('ai-processing-state', this.onProcessingEvent.bind(this));
+    this.events.on('image-player-action', this.onPlayerEvent.bind(this));
   }
 
   onInitEditMode() {
-    this.addEditorTab('Options', tablePanelEditor, 3);
+    this.addEditorTab('Options', galleryPanelEditor, 3);
     this.addEditorTab('Column Styles', columnOptionsTab, 4);
   }
 
   onInitPanelActions(actions) {
     actions.push({ text: 'Export CSV', click: 'ctrl.exportCsv()' });
+  }
+
+  onImagePatch(filename) {
+    this.image = this.panel.host + this.panel.api + filename;
+    this.scope.$applyAsync();
+  }
+
+  onProcessingEvent(start: boolean) {
+    this.inProcessing = start;
+    this.scope.$applyAsync();
+  }
+
+  onPlayerEvent(data: any) {
+    let rowId = data.start;
+
+    let row = this.table.rows[rowId];
+    this.current = row;
+
+    let image = '';
+
+    this.table.columns.forEach((item, index) => {
+      if(item.title === this.panel.imageCol) {
+        image = row[index];
+      }
+    });
+
+    if (image === '') {
+      return;
+    }
+
+    this.events.emit('image-patch', image);
+
+    this.scope.$applyAsync();
+  }
+
+  play() {
+    let count = this.table.rows.length;
+
+    if(count === 0) {
+      return;
+    }
+
+    this.rowIndex = (this.rowIndex === -1) ? 0 : count - 1;
+
+    this.playerTimer = setInterval( () => {
+      this.events.emit('image-player-action', { 
+        action: 'play', 
+        start: this.rowIndex,
+        end: 0, 
+        repeat: this.panel.repeat 
+      });
+
+      if(this.rowIndex === 0) {
+        this.stop();
+      } else {
+        this.back();
+      }
+
+    }, this.panel.delay * 1000);
+  }
+
+  rewind() {
+    let count = this.table.rows.length;
+
+    if(count === 0) {
+      return;
+    }
+
+    this.rowIndex = (this.rowIndex === -1) ? 0 : this.rowIndex;
+
+    this.playerTimer = setInterval( () => {
+      this.events.emit('image-player-action', { 
+        action: 'play', 
+        start: this.rowIndex, 
+        end: this.table.rows.length-1, 
+        repeat: this.panel.repeat 
+      });
+
+      if(this.rowIndex === this.table.rows.length-1) {
+        this.stop();
+      } else {
+        this.next();
+      }
+
+    }, this.panel.delay * 1000);
+  }
+
+  playBack() {
+    this.next();
+    this.events.emit('image-player-action', { 
+      action: 'play', 
+      start: this.rowIndex, 
+      end: this.table.rows.length-1, 
+      repeat: this.panel.repeat 
+    });
+  }
+  
+  playNext() {
+    this.back();
+    this.events.emit('image-player-action', { 
+      action: 'play', 
+      start: this.rowIndex, 
+      end: this.table.rows.length-1, 
+      repeat: this.panel.repeat 
+    });
+  }
+
+  back() {
+    this.rowIndex = (this.rowIndex <= 0) ? 0 : this.rowIndex - 1;
+  }
+  
+  next() {
+    this.rowIndex = (this.rowIndex >= this.table.rows.length - 1) ? this.rowIndex : this.rowIndex + 1;
+  }
+
+  stop() {
+    clearInterval(this.playerTimer);
+  }
+
+  moveTo(at: string) {
+    this.rowIndex = (at === 'first') ? 0 : (at === 'last') ? this.table.rows.length -1 : this.rowIndex;
   }
 
   issueQueries(datasource) {
@@ -197,6 +354,29 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       renderPanel();
     }
 
+    // sooskim : image row click
+    function showImageClicked(e) {
+      var el = $(e.currentTarget);
+      let row = parseInt(el.attr('row'));
+      let data = ctrl.table.rows[row];
+      
+      ctrl.current = data;
+
+      let image = '';
+
+      ctrl.table.columns.forEach((item, index) => {
+        if(item.title === ctrl.panel.imageCol) {
+          image = data[index];
+        }
+      });
+
+      if (image === '') {
+        return;
+      }
+
+      ctrl.events.emit('image-patch', image);
+    }
+
     function appendPaginationControls(footerElem) {
       footerElem.empty();
 
@@ -256,10 +436,12 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
 
     elem.on('click', '.table-panel-page-link', switchPage);
     elem.on('click', '.table-panel-filter-link', addFilterClicked);
+    elem.on('click', '.table-row-image', showImageClicked); // sooskim
 
     var unbindDestroy = scope.$on('$destroy', function() {
       elem.off('click', '.table-panel-page-link');
       elem.off('click', '.table-panel-filter-link');
+      elem.off('click', '.table-row-image');
       unbindDestroy();
     });
 

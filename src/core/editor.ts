@@ -85,12 +85,12 @@ export class TablePanelEditorCtrl {
 }
 
 /** @ngInject */
-export function tablePanelEditor($q, uiSegmentSrv) {
+export function galleryPanelEditor($q, uiSegmentSrv) {
   'use strict';
   return {
     restrict: 'E',
     scope: true,
-    templateUrl: 'public/app/plugins/panel/table/editor.html',
+    templateUrl: 'public/plugins/thingspin-gallery-panel/core/editor.html',
     controller: TablePanelEditorCtrl,
   };
 }
