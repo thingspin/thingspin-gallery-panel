@@ -203,6 +203,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       end: this.table.rows.length-1, 
       repeat: this.panel.repeat 
     });
+    this.stop();
   }
   
   playNext() {
@@ -213,6 +214,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       end: this.table.rows.length-1, 
       repeat: this.panel.repeat 
     });
+    this.stop();
   }
 
   back() {
@@ -229,6 +231,13 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
 
   moveTo(at: string) {
     this.rowIndex = (at === 'first') ? 0 : (at === 'last') ? this.table.rows.length -1 : this.rowIndex;
+
+    this.events.emit('image-player-action', { 
+      action: 'play', 
+      start: this.rowIndex, 
+      end: this.table.rows.length-1, 
+      repeat: this.panel.repeat 
+    });
   }
 
   issueQueries(datasource) {
@@ -274,7 +283,16 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       }
     }
 
+
     this.render();
+
+    this.moveTo('first');    
+    this.events.emit('image-player-action', { 
+      action: 'play', 
+      start: 0,
+      end: 0,
+      repeat: this.panel.repeat 
+    });
   }
 
   render() {
@@ -415,6 +433,8 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       appendPaginationControls(footerElem);
 
       rootElem.css({ 'max-height': panel.scroll ? getTableHeight() : '' });
+
+
     }
 
     // hook up link tooltips
