@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "target": "es5",
+    "typeRoots": [
+      "node_modules/@types"
+    ],    
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "module": "esnext",
+
+    "declaration": false,
+    "allowSyntheticDefaultImports": true,
+    "inlineSourceMap": false,
+    "sourceMap": true,
+    "noEmitOnError": false,
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": false,
+    "noImplicitUseStrict": false,
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "allowUnreachableCode": true,
+    "paths": {
+      "@": ["."]
+    }
+  },
+  "include": [
+    "./src/**/*.ts"
+  ]
+}
