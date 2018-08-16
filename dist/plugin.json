@@ -2,18 +2,24 @@
   "type": "panel",
   "name": "Gallery",
   "id": "thingspin-gallery-panel",
-
   "info": {
     "description": "Gallery Panel for ThingSPIN",
     "author": {
       "name": "SYSTEM",
       "url": "https://thingspin.com"
-},
+    },
     "logos": {
       "small": "img/main.png",
       "large": "img/main.png"
     },
     "version": "1.0.0"
-  }
+  },
+  "routes": [
+    {
+      "path": "/",
+      "method": "*",
+      "url": "ws://219.251.4.236:1884",
+      "reqSignedIn": true
+    }
+  ]
 }
-

@@ -5,6 +5,8 @@ import { transformDataToTable } from './core/transformers';
 import { galleryPanelEditor } from './core/editor';
 import { columnOptionsTab } from './core/column_options';
 import { TableRenderer } from './core/renderer';
+import './services/MQTT';
+import { MqttSrv } from './services/MQTT';
 
 class GalleryPanelCtrl extends MetricsPanelCtrl {
   static templateUrl = 'module.html';
@@ -65,13 +67,19 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
   };
 
   /** @ngInject */
-  constructor($scope, $injector, templateSrv, private annotationsSrv, private $sanitize, private variableSrv) {
+  constructor($scope, $injector, templateSrv,
+    private annotationsSrv, private $sanitize, private variableSrv,
+    private MqttSrv: MqttSrv) {
     super($scope, $injector);
     this.scope = $scope;
 
     this.pageIndex = 0;
     this.rowIndex = -1;
     this.inProcessing = true;
+    const urlPath = "/";
+    const baseUrl = `ws://219.251.4.236:1884`;
+    this.MqttSrv.connect(`${baseUrl}${urlPath}`);
+
 
     if (this.panel.styles === void 0) {
       this.panel.styles = this.panel.columns;
@@ -475,4 +483,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
   }
 }
 
-export { GalleryPanelCtrl, GalleryPanelCtrl as PanelCtrl };
+export {
+  GalleryPanelCtrl,
+  GalleryPanelCtrl as PanelCtrl
+};
