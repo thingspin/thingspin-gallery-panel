@@ -149,6 +149,9 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     let { start }: { start: string } = data;
 
     let row: any = this.table.rows[start];
+    if ( !row ) {
+      return;
+    }
     this.current = row;
 
     let image: string;
