@@ -1,5 +1,6 @@
-import _ from 'lodash';
 import $ from 'jquery';
+import _ from 'lodash';
+
 import { loadPluginCss, MetricsPanelCtrl } from 'grafana/app/plugins/sdk';
 import { transformDataToTable } from './core/transformers';
 import { galleryPanelEditor } from './core/editor';
@@ -9,7 +10,7 @@ import './services/MQTT';
 import { MqttSrv } from './services/MQTT';
 
 class GalleryPanelCtrl extends MetricsPanelCtrl {
-  static templateUrl = 'module.html';
+  static template: string = require('./module.html');
 
   scope: any;
   pageIndex: number;
@@ -67,11 +68,10 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
   };
 
   /** @ngInject */
-  constructor($scope, $injector, templateSrv,
+  constructor($scope, $injector, //private $element: JQuery,
     private annotationsSrv, private $sanitize, private variableSrv,
     private MqttSrv: MqttSrv) {
     super($scope, $injector);
-    this.scope = $scope;
 
     this.pageIndex = 0;
     this.rowIndex = -1;
@@ -108,17 +108,19 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     this.events.on('ai-processing-state', this.onProcessingEvent.bind(this));
     this.events.on('image-player-action', this.onPlayerEvent.bind(this));
   }
+  $onInit() {
+  }
 
-  onInitEditMode() {
+  onInitEditMode(): void {
     this.addEditorTab('Options', galleryPanelEditor, 3);
     this.addEditorTab('Column Styles', columnOptionsTab, 4);
   }
 
-  onInitPanelActions(actions) {
+  onInitPanelActions(actions): void {
     actions.push({ text: 'Export CSV', click: 'ctrl.exportCsv()' });
   }
 
-  onImagePatch(filename) {
+  onImagePatch(filename): void {
     this.image = this.panel.host + this.panel.api + filename;
     this.scope.$applyAsync();
   }
@@ -128,16 +130,16 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     this.scope.$applyAsync();
   }
 
-  onPlayerEvent(data: any) {
-    let rowId = data.start;
+  onPlayerEvent(data: any): void {
+    let { start } = data;
 
-    let row = this.table.rows[rowId];
+    let row: any = this.table.rows[start];
     this.current = row;
 
-    let image = '';
+    let image: string = String('');
 
-    this.table.columns.forEach((item, index) => {
-      if(item.title === this.panel.imageCol) {
+    this.table.columns.forEach( (item: any, index: number) => {
+      if (item.title === this.panel.imageCol) {
         image = row[index];
       }
     });
@@ -151,24 +153,24 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     this.scope.$applyAsync();
   }
 
-  play() {
-    let count = this.table.rows.length;
+  play(): void {
+    let count: number = this.table.rows.length;
 
-    if(count === 0) {
+    if (count === 0) {
       return;
     }
 
     this.rowIndex = (this.rowIndex === -1) ? 0 : count - 1;
 
     this.playerTimer = setInterval( () => {
-      this.events.emit('image-player-action', { 
-        action: 'play', 
+      this.events.emit('image-player-action', {
+        action: 'play',
         start: this.rowIndex,
-        end: 0, 
-        repeat: this.panel.repeat 
+        end: 0,
+        repeat: this.panel.repeat
       });
 
-      if(this.rowIndex === 0) {
+      if (this.rowIndex === 0) {
         this.stop();
       } else {
         this.back();
@@ -177,24 +179,24 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     }, this.panel.delay * 1000);
   }
 
-  rewind() {
-    let count = this.table.rows.length;
+  rewind(): void {
+    let count: number = this.table.rows.length;
 
-    if(count === 0) {
+    if (count === 0) {
       return;
     }
 
     this.rowIndex = (this.rowIndex === -1) ? 0 : this.rowIndex;
 
     this.playerTimer = setInterval( () => {
-      this.events.emit('image-player-action', { 
-        action: 'play', 
-        start: this.rowIndex, 
-        end: this.table.rows.length-1, 
-        repeat: this.panel.repeat 
+      this.events.emit('image-player-action', {
+        action: 'play',
+        start: this.rowIndex,
+        end: this.table.rows.length-1,
+        repeat: this.panel.repeat,
       });
 
-      if(this.rowIndex === this.table.rows.length-1) {
+      if (this.rowIndex === this.table.rows.length-1) {
         this.stop();
       } else {
         this.next();
@@ -203,52 +205,52 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     }, this.panel.delay * 1000);
   }
 
-  playBack() {
+  playBack(): void {
     this.next();
-    this.events.emit('image-player-action', { 
-      action: 'play', 
-      start: this.rowIndex, 
-      end: this.table.rows.length-1, 
-      repeat: this.panel.repeat 
-    });
-    this.stop();
-  }
-  
-  playNext() {
-    this.back();
-    this.events.emit('image-player-action', { 
-      action: 'play', 
-      start: this.rowIndex, 
-      end: this.table.rows.length-1, 
-      repeat: this.panel.repeat 
+    this.events.emit('image-player-action', {
+      action: 'play',
+      start: this.rowIndex,
+      end: this.table.rows.length-1,
+      repeat: this.panel.repeat
     });
     this.stop();
   }
 
-  back() {
+  playNext(): void {
+    this.back();
+    this.events.emit('image-player-action', {
+      action: 'play',
+      start: this.rowIndex,
+      end: this.table.rows.length-1,
+      repeat: this.panel.repeat
+    });
+    this.stop();
+  }
+
+  back(): void {
     this.rowIndex = (this.rowIndex <= 0) ? 0 : this.rowIndex - 1;
   }
-  
-  next() {
+
+  next(): void {
     this.rowIndex = (this.rowIndex >= this.table.rows.length - 1) ? this.rowIndex : this.rowIndex + 1;
   }
 
-  stop() {
+  stop(): void {
     clearInterval(this.playerTimer);
   }
 
-  moveTo(at: string) {
+  moveTo(at: string): void {
     this.rowIndex = (at === 'first') ? 0 : (at === 'last') ? this.table.rows.length -1 : this.rowIndex;
 
-    this.events.emit('image-player-action', { 
-      action: 'play', 
-      start: this.rowIndex, 
-      end: this.table.rows.length-1, 
-      repeat: this.panel.repeat 
+    this.events.emit('image-player-action', {
+      action: 'play',
+      start: this.rowIndex,
+      end: this.table.rows.length-1,
+      repeat: this.panel.repeat
     });
   }
 
-  issueQueries(datasource) {
+  issueQueries(datasource): any {
     this.pageIndex = 0;
 
     if (this.panel.transform === 'annotations') {
@@ -267,12 +269,12 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     return super.issueQueries(datasource);
   }
 
-  onDataError(err) {
+  onDataError(err): void {
     this.dataRaw = [];
     this.render();
   }
 
-  onDataReceived(dataList) {
+  onDataReceived(dataList): void {
     this.dataRaw = dataList;
     this.pageIndex = 0;
 
@@ -294,16 +296,20 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
 
     this.render();
 
-    this.moveTo('first');    
-    this.events.emit('image-player-action', { 
-      action: 'play', 
+    this.moveTo('first');
+    this.events.emit('image-player-action', {
+      action: 'play',
       start: 0,
       end: 0,
-      repeat: this.panel.repeat 
+      repeat: this.panel.repeat
     });
   }
 
   render() {
+    // $('#aniimatedThumbnials').lightGallery({
+    //   thumbnail: true
+    // });
+
     this.table = transformDataToTable(this.dataRaw, this.panel);
     this.table.sort(this.panel.sort);
 
@@ -385,13 +391,13 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       var el = $(e.currentTarget);
       let row = parseInt(el.attr('row'));
       let data = ctrl.table.rows[row];
-      
+
       ctrl.current = data;
 
       let image = '';
 
       ctrl.table.columns.forEach((item, index) => {
-        if(item.title === ctrl.panel.imageCol) {
+        if (item.title === ctrl.panel.imageCol) {
           image = data[index];
         }
       });

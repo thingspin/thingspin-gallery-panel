@@ -44,7 +44,13 @@ module.exports = function(grunt) {
           cwd: 'src',
           src: ['*.md'],
           dest: 'dist',
-        }
+        },
+        vendor: {
+          expand: true,
+          cwd: 'src/vendor',
+          src: ['**/*'],
+          dest: 'dist/vendor',
+        },
       },
       webpack: {
         options: {
@@ -65,21 +71,21 @@ module.exports = function(grunt) {
           files: ['<%= project.dev %>/sass/**/*.scss'],
           tasks: ['sass'],
           options: {
-            livereload: true
+            livereload: false
           }
         },
         markdown: {
           files: ['<%= project.dev %>/*.md'],
           tasks: ['copy:md'],
           options: {
-            livereload: true
+            livereload: false
           }
         },
         less: {
           files: ['<%= project.dev %>/less/*.less'],
           tasks: ['less:development'],
           options: {
-            livereload: true
+            livereload: false
           }
         },
         scripts: {
@@ -98,7 +104,7 @@ module.exports = function(grunt) {
   
     grunt.registerTask('default', [
       'clean',
-      'copy:md',
+      'copy',
       'sass',
       'less:development',
       'webpack:prod',
