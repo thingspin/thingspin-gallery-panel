@@ -59,19 +59,19 @@
     <h5 class="heading">Image</h5>
     <div class="gf-form">
       <label class="gf-form-label width-8">Image Server</label>
-      <input type="text" class="gf-form-input width-30" placeholder="" data-placement="right" ng-model="editor.panel.host" ng-change="editor.render()" ng-model-onblur>
+      <input type="text" class="gf-form-input width-30" placeholder="{{editor.inputSuggest.imageServer}}" data-placement="right" ng-model="editor.panel.host" ng-change="editor.render()" ng-model-onblur>
     </div>
     <div class="gf-form">
       <label class="gf-form-label width-8">Image Host API</label>
       <div class="gf-form">
-        <input type="text" class="gf-form-input width-30" placeholder="" data-placement="right" ng-model="editor.panel.api" ng-change="editor.render()"></select>
+        <input type="text" class="gf-form-input width-30" placeholder="{{editor.inputSuggest.imageHostApi}}" data-placement="right" ng-model="editor.panel.api" ng-change="editor.render()"></select>
       </div>
     </div>
 
     <div class="gf-form">
       <label class="gf-form-label width-8">Splash</label>
       <div class="gf-form">
-        <input type="text" class="gf-form-input width-30" placeholder="" data-placement="right" ng-model="editor.panel.splash" ng-change="editor.render()"></select>
+        <input type="text" class="gf-form-input width-30" placeholder="{{editor.inputSuggest.splash}}" data-placement="right" ng-model="editor.panel.splash" ng-change="editor.render()"></select>
       </div>
     </div>
   </div>

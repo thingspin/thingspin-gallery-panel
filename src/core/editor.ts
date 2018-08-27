@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { transformers } from './transformers';
+import { ILocationService } from 'angular';
 
 export class TablePanelEditorCtrl {
   panel: any;
@@ -11,8 +12,17 @@ export class TablePanelEditorCtrl {
   canSetColumns: boolean;
   columnsHelpMessage: string;
 
+  hostInfo: String;
+
+  inputSuggest: Object = {
+    imageServer: String,
+    imageHostApi: String,
+    splash: String,
+    delay: Number,
+  };
+
   /** @ngInject */
-  constructor($scope, private $q, private uiSegmentSrv) {
+  constructor($scope, private $q, private uiSegmentSrv, $location: ILocationService) {
     $scope.editor = this;
     this.panelCtrl = $scope.ctrl;
     this.panel = this.panelCtrl.panel;
@@ -20,6 +30,12 @@ export class TablePanelEditorCtrl {
     this.fontSizes = ['80%', '90%', '100%', '110%', '120%', '130%', '150%', '160%', '180%', '200%', '220%', '250%'];
     this.addColumnSegment = uiSegmentSrv.newPlusButton();
     this.updateTransformHints();
+
+    this.inputSuggest = {
+      imageServer: `http://${$location.host()}:${$location.port()}`,
+      imageHostApi: `public/assets/gallery/pics/`,
+      splash: `splash.svg`,
+    };
   }
 
   updateTransformHints() {

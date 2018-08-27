@@ -20,7 +20,7 @@ export class TableRenderer {
     this.formatters = [];
     this.colorState = {};
 
-    for (let colIndex = 0; colIndex < this.table.columns.length; colIndex++) {
+    for (let colIndex: number = Number(0); colIndex < this.table.columns.length; colIndex++) {
       let column = this.table.columns[colIndex];
       column.title = column.text;
 
@@ -47,7 +47,7 @@ export class TableRenderer {
     if (!style.thresholds) {
       return null;
     }
-    for (var i = style.thresholds.length; i > 0; i--) {
+    for (var i: number = style.thresholds.length; i > 0; i--) {
       if (value >= style.thresholds[i - 1]) {
         return style.colors[i];
       }
@@ -193,27 +193,27 @@ export class TableRenderer {
   }
 
   renderRowVariables(rowIndex) {
-    let scopedVars = {};
-    let cell_variable;
+    let scopedVars: Object = {};
+    let cell_variable: string;
     let row = this.table.rows[rowIndex];
-    for (let i = 0; i < row.length; i++) {
+    for (let i: number = Number(0); i < row.length; i++) {
       cell_variable = `__cell_${i}`;
       scopedVars[cell_variable] = { value: row[i] };
     }
     return scopedVars;
   }
 
-  formatColumnValue(colIndex, value) {
+  formatColumnValue(colIndex, value): any {
     return this.formatters[colIndex] ? this.formatters[colIndex](value) : value;
   }
 
-  renderCell(columnIndex, rowIndex, value, addWidthHack = false) {
+  renderCell(columnIndex, rowIndex, value, addWidthHack = false): string {
     value = this.formatColumnValue(columnIndex, value);
 
     var column = this.table.columns[columnIndex];
-    var style = '';
-    var cellClasses = [];
-    var cellClass = '';
+    var style: string = String('');
+    var cellClasses: any[] = [];
+    var cellClass: string = String('');
 
     if (this.colorState.cell) {
       style = ' style="background-color:' + this.colorState.cell + ';color: white"';
@@ -226,9 +226,9 @@ export class TableRenderer {
     // because of the fixed table headers css only solution
     // there is an issue if header cell is wider the cell
     // this hack adds header content to cell (not visible)
-    var columnHtml = '';
+    var columnHtml: string = String('');
     if (addWidthHack) {
-      columnHtml = '<div class="table-panel-width-hack">' + this.table.columns[columnIndex].title + '</div>';
+      columnHtml = `<div class="table-panel-width-hack">${this.table.columns[columnIndex].title}</div>`;
     }
 
     if (value === undefined) {
@@ -249,7 +249,7 @@ export class TableRenderer {
 
       var cellLink = this.templateSrv.replace(column.style.linkUrl, scopedVars, encodeURIComponent);
       var cellLinkTooltip = this.templateSrv.replace(column.style.linkTooltip, scopedVars);
-      var cellTarget = column.style.linkTargetBlank ? '_blank' : '_self';
+      var cellTarget: string = column.style.linkTargetBlank ? '_blank' : '_self';
 
       cellClasses.push('table-panel-cell-link');
       columnHtml += `
@@ -275,47 +275,47 @@ export class TableRenderer {
     }
 
     if (cellClasses.length) {
-      cellClass = ' class="' + cellClasses.join(' ') + '"';
+      cellClass = `class="${cellClasses.join(' ')}"`;
     }
 
-    columnHtml = '<td' + cellClass + style + '>' + columnHtml + '</td>';
+    columnHtml = `<td ${cellClass + style}>${ columnHtml }</td>`;
     return columnHtml;
   }
 
-  render(page) {
-    let pageSize = this.panel.pageSize || 100;
-    let startPos = page * pageSize;
-    let endPos = Math.min(startPos + pageSize, this.table.rows.length);
-    var html = '';
+  render(page): string {
+    let pageSize: number = this.panel.pageSize || 100;
+    let startPos: number = page * pageSize;
+    let endPos: number = Math.min(startPos + pageSize, this.table.rows.length);
 
-    for (var y = startPos; y < endPos; y++) {
+    let html: string = String('');
+    for (let y: number = startPos; y < endPos; y++) {
       let row = this.table.rows[y];
-      let cellHtml = '';
-      let rowStyle = '';
-      for (var i = 0; i < this.table.columns.length; i++) {
+      let cellHtml: string = String('');
+      let rowStyle: string = String('');
+      for (let i: number = Number(0); i < this.table.columns.length; i++) {
         cellHtml += this.renderCell(i, y, row[i], y === startPos);
       }
 
       if (this.colorState.row) {
-        rowStyle = ' style="background-color:' + this.colorState.row + ';color: white"';
+        rowStyle = `style="background-color:${ this.colorState.row };color: white"`;
         this.colorState.row = null;
       }
 
-      rowStyle += ' class="table-row-image pointer" row=' + y + ' '; // sooskim
+      rowStyle += `class="table-row-image pointer" row=${y} `; // sooskim
 
-      html += '<tr ' + rowStyle + '>' + cellHtml + '</tr>';
+      html += `<tr ${rowStyle}>${cellHtml}</tr>`;
     }
 
     return html;
   }
 
-  render_values() {
-    let rows = [];
+  render_values(): any {
+    let rows: any[] = [];
 
-    for (var y = 0; y < this.table.rows.length; y++) {
+    for (let y: number = Number(0); y < this.table.rows.length; y++) {
       let row = this.table.rows[y];
-      let new_row = [];
-      for (var i = 0; i < this.table.columns.length; i++) {
+      let new_row: any[] = [];
+      for (let i: number = Number(0); i < this.table.columns.length; i++) {
         new_row.push(this.formatColumnValue(i, row[i]));
       }
       rows.push(new_row);

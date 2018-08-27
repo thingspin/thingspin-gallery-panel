@@ -5,23 +5,7 @@
 				<img ng-src="{{ ctrl.image || '//:0' }}" ng-show="ctrl.image !== null" width="640" height="480" />
 			</div>
 		</div>
-	</div>
-
-	<div class="section gf-form-group">
-		<h5 class="section-heading">Data</h5>
-		<div class="gf-form">
-			<label class="gf-form-label width-7">Event #</label>
-			<input type="number" class="gf-form-input width-13" ng-model="ctrl.rowIndex" ng-model-onblur>
-		</div>
-		<div class="gf-form" ng-repeat="col in ctrl.table.columns" ng-hide="col.hidden">
-			<label class="gf-form-label width-7">{{col.title}}</label>
-			<input type="text" class="gf-form-input width-13" ng-model="ctrl.current[$index]" ng-model-onblur>
-		</div>
-	</div>
-
-	<div class="section gf-form-group">
-		<h5 class="section-heading">Player</h5>
-        <div class="section gf-form-button-row">
+		<div class="section gf-form-button-row">
 			<button	type="button"
 				class="btn gf-form-button btn-first"
 				ng-click='ctrl.moveTo("first")'
@@ -68,19 +52,17 @@
 		</div>
 	</div>
 
-	<!-- <div class="section gf-form-group" ng-show="ctrl.inProcessing === true">
-		<div class="splash">
-			<div class="thingspin-info-box span8">
-			ThingSPIN Edge AI is a multi-tenant machine learning inference system where most can be configured per models and algorithms. These
-			wizard pages are for data scientists where you can manage models & all algorithms across all models.
-			</div>
-
-			<div class="color-line"></div>
-			<div class="splash-title text-center">
-				<img ng-src={{ctrl.splash}} width="126" height="64" />
-			</div>
+	<div class="section gf-form-group">
+		<h5 class="section-heading">Data</h5>
+		<div class="gf-form">
+			<label class="gf-form-label width-7">Event #</label>
+			<input type="number" class="gf-form-input width-13" ng-model="ctrl.rowIndex" ng-model-onblur>
 		</div>
-	</div> -->
+		<div class="gf-form" ng-repeat="col in ctrl.table.columns" ng-hide="col.hidden">
+			<label class="gf-form-label width-7">{{col.title}}</label>
+			<input type="text" class="gf-form-input width-13" ng-model="ctrl.current[$index]" ng-model-onblur>
+		</div>
+	</div>
 </div>
 
 <div class="table-panel-container">
@@ -105,7 +87,7 @@
 		</table>
 	</div>
 </div>
-<div class="datapoints-warning" ng-show="ctrl.table.rows.length===0">
+<div class="datapoints-warning" ng-show="ctrl.table.rows.length === 0">
 	<span class="small" >
 		No data to show <tip>Nothing returned by data query</tip>
 	</span>
