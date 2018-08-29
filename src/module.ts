@@ -3,6 +3,7 @@ import { IAttributes, IScope } from 'angular';
 
 import $ from 'jquery';
 import _ from 'lodash';
+import moment from 'moment';
 
 /* Grafana Libraries */
 import { loadPluginCss, MetricsPanelCtrl } from 'grafana/app/plugins/sdk';
@@ -68,6 +69,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     splash: 'splash.svg',
     image: 'photo.png',
     imageCol: 'IMAGE',
+    time: 'Time',    
 
     repeat: false,
     delay: 0.3,
@@ -103,7 +105,6 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       dark: `${pluginBase}/css/dark.css`,
       light: `${pluginBase}/css/light.css`
     });
-
   }
 
   $onInit() {
@@ -135,8 +136,10 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     actions.push({ text: 'Export CSV', click: 'ctrl.exportCsv()' });
   }
 
-  onImagePatch(filename: string): void {
-    this.image = this.panel.host + this.panel.api + filename;
+  onImagePatch(data:any): void {
+    console.log(data);
+    this.image = this.panel.host + this.panel.api + data.location + "/" + data.filename;
+    console.log(this.image);
     this.$scope.$applyAsync();
   }
 
@@ -155,12 +158,15 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     this.current = row;
 
     let image: string;
+    let date: string;
     this.table.columns.forEach( (item: any, index: number) => {
       if (item.title === this.panel.imageCol) {
         const $tBody = this.$element.find("tbody");
         image = row[index];
         $tBody.find("tr").removeClass("active");
         $tBody.find(`tr[row='${start}']`).addClass("active");
+      } else if (item.title === this.panel.time) {
+        date = moment(row[index]).format("YYYYMMDD");
       }
     });
 
@@ -168,7 +174,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       return;
     }
 
-    this.events.emit('image-patch', image);
+    this.events.emit('image-patch', {filename:image, location:date});
 
     this.$scope.$applyAsync();
   }
@@ -332,7 +338,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     this.renderer = new TableRenderer(
       this.panel,
       this.table,
-      this.dashboard.isTimezoneUtc(),
+      this.dashboard.getTimezone(),
       this.$sanitize,
       this.templateSrv
     );
@@ -416,10 +422,13 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       ctrl.current = data;
 
       let image: string = String('');
+      let date: string = String('');
 
       ctrl.table.columns.forEach( (item: any, index: number) => {
         if (item.title === ctrl.panel.imageCol) {
           image = data[index];
+        } else if (item.title === ctrl.panel.time) {
+          date = moment(row[index]).format("YYYYMMDD");
         }
       });
 
@@ -427,7 +436,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
         return;
       }
 
-      ctrl.events.emit('image-patch', image);
+      ctrl.events.emit('image-patch', {filename:image, location:date});
     }
 
     function appendPaginationControls(footerElem: JQLite) {
