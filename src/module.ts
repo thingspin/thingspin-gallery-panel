@@ -18,6 +18,13 @@ import { TableRenderer } from './core/renderer';
 import './services/MQTT';
 import { MqttSrv } from './services/MQTT';
 
+interface PlayData {
+  action: string;
+  start: string;
+  end: number;
+  repeat: any;
+}
+
 class GalleryPanelCtrl extends MetricsPanelCtrl {
   static template: string = require('./module.html');
 
@@ -69,7 +76,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     splash: 'splash.svg',
     image: 'photo.png',
     imageCol: 'IMAGE',
-    time: 'Time',    
+    time: 'Time',
 
     repeat: false,
     delay: 0.3,
@@ -136,19 +143,19 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     actions.push({ text: 'Export CSV', click: 'ctrl.exportCsv()' });
   }
 
-  onImagePatch(data:any): void {
+  onImagePatch(data: any): void {
     console.log(data);
     this.image = this.panel.host + this.panel.api + data.location + "/" + data.filename;
     console.log(this.image);
     this.$scope.$applyAsync();
   }
 
-  onProcessingEvent(start: boolean) {
+  onProcessingEvent(start: boolean): void {
     this.inProcessing = start;
     this.$scope.$applyAsync();
   }
 
-  onPlayerEvent(data: any): void {
+  onPlayerEvent(data: PlayData): void {
     let { start }: { start: string } = data;
 
     let row: any = this.table.rows[start];
@@ -174,7 +181,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       return;
     }
 
-    this.events.emit('image-patch', {filename:image, location:date});
+    this.events.emit('image-patch', {filename: image, location: date});
 
     this.$scope.$applyAsync();
   }
@@ -338,7 +345,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     this.renderer = new TableRenderer(
       this.panel,
       this.table,
-      this.dashboard.getTimezone(),
+      this.dashboard.isTimezoneUtc(),
       this.$sanitize,
       this.templateSrv
     );
@@ -346,7 +353,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     return super.render(this.table);
   }
 
-  toggleColumnSort(col, colIndex) {
+  toggleColumnSort(col, colIndex): void {
     // remove sort flag from current column
     if (this.table.columns[this.panel.sort.col]) {
       this.table.columns[this.panel.sort.col].sort = false;
@@ -387,7 +394,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     var panel = ctrl.panel;
     var pageCount = 0;
 
-    function getTableHeight() {
+    function getTableHeight(): string {
       let panelHeight: number = ctrl.height;
 
       if (pageCount > 1) {
@@ -397,20 +404,20 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       return panelHeight - 31 + 'px';
     }
 
-    function appendTableRows(tbodyElem: JQLite) {
+    function appendTableRows(tbodyElem: JQLite): void {
       ctrl.renderer.setTable(data);
       tbodyElem.empty();
       tbodyElem.html(ctrl.renderer.render(ctrl.pageIndex));
     }
 
-    function switchPage(e: Event) {
+    function switchPage(e: Event): void {
       var el: JQuery = $(e.currentTarget);
       ctrl.pageIndex = parseInt(el.text(), 10) - 1;
       renderPanel();
     }
 
     // sooskim : image row click
-    function showImageClicked(e: Event) {
+    function showImageClicked(e: Event): void {
       const el: JQuery = $(e.currentTarget);
       const row: number = parseInt(el.attr('row'));
       const data: any = ctrl.table.rows[row];
@@ -436,10 +443,10 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
         return;
       }
 
-      ctrl.events.emit('image-patch', {filename:image, location:date});
+      ctrl.events.emit('image-patch', {filename: image, location: date});
     }
 
-    function appendPaginationControls(footerElem: JQLite) {
+    function appendPaginationControls(footerElem: JQLite): void {
       footerElem.empty();
 
       const pageSize: number = panel.pageSize || 100;
@@ -462,7 +469,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       footerElem.append(paginationList);
     }
 
-    function renderPanel() {
+    function renderPanel(): void {
       const panelElem: JQLite = elem.parents('.panel-content');
       const rootElem: JQLite = elem.find('.table-panel-scroll');
       const tbodyElem: JQLite = elem.find('tbody');
@@ -482,7 +489,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       selector: '[data-link-tooltip]',
     });
 
-    function addFilterClicked(e) {
+    function addFilterClicked(e): void {
       let filterData: any = $(e.currentTarget).data();
       ctrl.variableSrv.setAdhocFilter({
         datasource: panel.datasource,
@@ -496,14 +503,14 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     elem.on('click', '.table-panel-filter-link', addFilterClicked);
     elem.on('click', '.table-row-image', showImageClicked); // sooskim
 
-    var unbindDestroy = scope.$on('$destroy', function() {
+    var unbindDestroy = scope.$on('$destroy', function(): void {
       elem.off('click', '.table-panel-page-link');
       elem.off('click', '.table-panel-filter-link');
       elem.off('click', '.table-row-image');
       unbindDestroy();
     });
 
-    ctrl.events.on('render', function(renderData) {
+    ctrl.events.on('render', function(renderData): void {
       data = renderData || data;
       if (data) {
         renderPanel();

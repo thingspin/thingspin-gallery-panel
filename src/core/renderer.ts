@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import moment from 'moment';
+import config from "grafana/app/core/config";
 import kbn from './kbn';
 
 export class TableRenderer {
@@ -8,6 +9,8 @@ export class TableRenderer {
 
   constructor(private panel, private table, private isUtc, private sanitize, private templateSrv) {
     this.initColumns();
+
+    moment.locale(config.bootData.user.locale);
   }
 
   setTable(table) {
