@@ -77,6 +77,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     image: 'photo.png',
     imageCol: 'IMAGE',
     time: 'Time',
+    folder: 'Folder',
 
     repeat: false,
     delay: 0.3,
@@ -165,7 +166,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     this.current = row;
 
     let image: string;
-    let date: string;
+    let folderName: string;
     this.table.columns.forEach( (item: any, index: number) => {
       if (item.title === this.panel.imageCol) {
         const $tBody = this.$element.find("tbody");
@@ -173,7 +174,9 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
         $tBody.find("tr").removeClass("active");
         $tBody.find(`tr[row='${start}']`).addClass("active");
       } else if (item.title === this.panel.time) {
-        date = moment(row[index]).format("YYYYMMDD");
+        folderName = moment(row[index]).format("YYYYMMDD");
+      } else if (item.title === this.panel.folder) {
+        folderName = row[index];
       }
     });
 
@@ -181,7 +184,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       return;
     }
 
-    this.events.emit('image-patch', {filename: image, location: date});
+    this.events.emit('image-patch', {filename: image, location: folderName});
 
     this.$scope.$applyAsync();
   }
@@ -429,13 +432,15 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       ctrl.current = data;
 
       let image: string = String('');
-      let date: string = String('');
+      let folderName: string = String('');
 
       ctrl.table.columns.forEach( (item: any, index: number) => {
         if (item.title === ctrl.panel.imageCol) {
           image = data[index];
         } else if (item.title === ctrl.panel.time) {
-          date = moment(row[index]).format("YYYYMMDD");
+          folderName = moment(row[index]).format("YYYYMMDD");
+        } else if (item.title === ctrl.panel.folder) {
+          folderName = data[index];
         }
       });
 
@@ -443,7 +448,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
         return;
       }
 
-      ctrl.events.emit('image-patch', {filename: image, location: date});
+      ctrl.events.emit('image-patch', {filename: image, location: folderName});
     }
 
     function appendPaginationControls(footerElem: JQLite): void {
