@@ -71,13 +71,14 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     sort: { col: 0, desc: true },
 
     //host: '', //'http://219.251.4.236/',
-    host: 'http://219.251.4.236/',
+    host: '',
     api: 'public/assets/gallary/pics/',
     splash: 'splash.svg',
     image: 'photo.png',
     imageCol: 'IMAGE',
-    time: 'Time',
-    folder: 'Folder',
+    time: 'TIME_SEC',
+    folder: 'FOLDER',
+    datePath: 'datePath',
 
     repeat: false,
     delay: 0.3,
@@ -94,7 +95,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     this.inProcessing = true;
 
     const urlPath = "/";
-    const baseUrl = `ws://219.251.4.236:1884`;
+    const baseUrl = `ws://localhost:1884`;
     this.MqttSrv.connect(`${baseUrl}${urlPath}`);
 
     if (this.panel.styles === void 0) {
@@ -146,6 +147,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
 
   onImagePatch(data: any): void {
     console.log(data);
+    // this.image = this.panel.host + this.panel.api + data.location + "/" + data.filename;
     this.image = this.panel.host + this.panel.api + data.location + "/" + data.filename;
     console.log(this.image);
     this.$scope.$applyAsync();
@@ -176,6 +178,8 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       } else if (item.title === this.panel.time) {
         folderName = moment(row[index]).format("YYYYMMDD");
       } else if (item.title === this.panel.folder) {
+        folderName = row[index];
+      } else if (item.title ===  this.panel.datePath) {
         folderName = row[index];
       }
     });
@@ -441,6 +445,8 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
           folderName = moment(row[index]).format("YYYYMMDD");
         } else if (item.title === ctrl.panel.folder) {
           folderName = data[index];
+        } else if (item.title ===  ctrl.panel.datePath) {
+          folderName = row[index];
         }
       });
 
