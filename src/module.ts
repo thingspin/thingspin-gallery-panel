@@ -76,9 +76,10 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
     splash: 'splash.svg',
     image: 'photo.png',
     imageCol: 'IMAGE',
-    time: 'TIME_SEC',
+    time: 'time',
     folder: 'FOLDER',
     datePath: 'datePath',
+    camera: 'CAMERA',
 
     repeat: false,
     delay: 0.3,
@@ -147,8 +148,11 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
 
   onImagePatch(data: any): void {
     console.log(data);
-    // this.image = this.panel.host + this.panel.api + data.location + "/" + data.filename;
-    this.image = this.panel.host + this.panel.api + data.location + "/" + data.filename;
+    if (data.id === undefined) {
+      this.image = this.panel.host + this.panel.api + data.location + "/" + data.filename;
+    } else {
+      this.image = this.panel.host + this.panel.api + data.location + "/" + data.id + "/" + data.filename;
+    }
     console.log(this.image);
     this.$scope.$applyAsync();
   }
@@ -169,18 +173,20 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
 
     let image: string;
     let folderName: string;
+    let cameraID: string;
+    let date: string;
     this.table.columns.forEach( (item: any, index: number) => {
       if (item.title === this.panel.imageCol) {
         const $tBody = this.$element.find("tbody");
         image = row[index];
         $tBody.find("tr").removeClass("active");
         $tBody.find(`tr[row='${start}']`).addClass("active");
-      } else if (item.title === this.panel.time) {
-        folderName = moment(row[index]).format("YYYYMMDD");
-      } else if (item.title === this.panel.folder) {
-        folderName = row[index];
       } else if (item.title ===  this.panel.datePath) {
         folderName = row[index];
+      } else if (item.title === this.panel.camera) {
+        cameraID = row[index];
+      } else if (item.title === this.panel.time) {
+        date = moment(row[index]).format("YYYYMMDD");
       }
     });
 
@@ -188,8 +194,11 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       return;
     }
 
-    this.events.emit('image-patch', {filename: image, location: folderName});
-
+    if (folderName === undefined) {
+      this.events.emit('image-patch', {filename: image, location: date});
+    } else {
+      this.events.emit('image-patch', {filename: image, id:cameraID, location: folderName});
+    }
     this.$scope.$applyAsync();
   }
 
@@ -437,16 +446,17 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
 
       let image: string = String('');
       let folderName: string = String('');
-
+      let cameraID: string = String('');
+      let date: string = String('');
       ctrl.table.columns.forEach( (item: any, index: number) => {
         if (item.title === ctrl.panel.imageCol) {
           image = data[index];
-        } else if (item.title === ctrl.panel.time) {
-          folderName = moment(row[index]).format("YYYYMMDD");
-        } else if (item.title === ctrl.panel.folder) {
-          folderName = data[index];
         } else if (item.title ===  ctrl.panel.datePath) {
-          folderName = row[index];
+          folderName = data[index];
+        } else if (item.title === ctrl.panel.camera) {
+          cameraID = data[index];
+        } else if (item.title === ctrl.panel.time) {
+          date = moment(row[index]).format("YYYYMMDD");
         }
       });
 
@@ -454,7 +464,11 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
         return;
       }
 
-      ctrl.events.emit('image-patch', {filename: image, location: folderName});
+      if (folderName === undefined) {
+        this.events.emit('image-patch', {filename: image, location: date});
+      } else {
+        this.events.emit('image-patch', {filename: image, id:cameraID, location: folderName});
+      }
     }
 
     function appendPaginationControls(footerElem: JQLite): void {
