@@ -148,10 +148,10 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
 
   onImagePatch(data: any): void {
     console.log(data);
-    if (data.id === undefined) {
-      this.image = this.panel.host + this.panel.api + data.location + "/" + data.filename;
-    } else {
+    if (data.date.length === 0) {
       this.image = this.panel.host + this.panel.api + data.location + "/" + data.id + "/" + data.filename;
+    } else {
+      this.image = this.panel.host + this.panel.api + data.date + "/" + data.filename;
     }
     console.log(this.image);
     this.$scope.$applyAsync();
@@ -183,10 +183,12 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
         $tBody.find(`tr[row='${start}']`).addClass("active");
       } else if (item.title ===  this.panel.datePath) {
         folderName = row[index];
+        if (folderName.length > 0)
+          date = '';
       } else if (item.title === this.panel.camera) {
         cameraID = row[index];
-      } else if (item.title === this.panel.time) {
-        date = moment(row[index]).format("YYYYMMDD");
+      } else if (item.title === this.panel.time || item.title === "time") {
+        date = moment(data[index]).subtract('hours',9).format("YYYYMMDD");
       }
     });
 
@@ -194,11 +196,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
       return;
     }
 
-    if (folderName === undefined) {
-      this.events.emit('image-patch', {filename: image, location: date});
-    } else {
-      this.events.emit('image-patch', {filename: image, id:cameraID, location: folderName});
-    }
+    this.events.emit('image-patch', {filename: image, id:cameraID, location: folderName, date:date});
     this.$scope.$applyAsync();
   }
 
@@ -453,10 +451,14 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
           image = data[index];
         } else if (item.title ===  ctrl.panel.datePath) {
           folderName = data[index];
+          if (folderName.length > 0) {
+            date = '';
+          }
         } else if (item.title === ctrl.panel.camera) {
           cameraID = data[index];
-        } else if (item.title === ctrl.panel.time) {
-          date = moment(row[index]).format("YYYYMMDD");
+        } else if (item.title === ctrl.panel.time || item.title === "time") {
+          console.log(data[index]);
+          date = moment(data[index]).subtract('hours',9).format("YYYYMMDD");
         }
       });
 
@@ -464,11 +466,7 @@ class GalleryPanelCtrl extends MetricsPanelCtrl {
         return;
       }
 
-      if (folderName === undefined) {
-        this.events.emit('image-patch', {filename: image, location: date});
-      } else {
-        this.events.emit('image-patch', {filename: image, id:cameraID, location: folderName});
-      }
+      ctrl.events.emit('image-patch', {filename: image, id:cameraID, location: folderName, date: date});
     }
 
     function appendPaginationControls(footerElem: JQLite): void {
